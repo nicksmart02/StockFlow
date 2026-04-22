@@ -1,712 +1,104 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>StockPro – Gestion de Stock</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<style>
-*{box-sizing:border-box;margin:0;padding:0}
-:root{
-  --bg:#0F1117;--bg2:#1A1D27;--bg3:#232736;--bg4:#2C3044;
-  --accent:#4F8EF7;--accent2:#7C3AED;--green:#22C55E;--red:#EF4444;--amber:#F59E0B;
-  --text:#F1F5F9;--text2:#94A3B8;--text3:#64748B;
-  --border:#2C3044;--card:#1A1D27;
-  --font:'Outfit',sans-serif;
-}
-body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;font-size:14px}
-.app{display:flex;height:100vh;overflow:hidden}
-.sidebar{width:220px;min-width:220px;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;transition:.3s}
-.logo{padding:20px 16px 16px;border-bottom:1px solid var(--border)}
-.logo h1{font-size:16px;font-weight:700;color:var(--text);letter-spacing:-.3px}
-.logo span{color:var(--accent);font-size:11px;font-weight:500;display:block;margin-top:2px}
-.nav{flex:1;padding:12px 8px;overflow-y:auto}
-.nav-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:8px;cursor:pointer;color:var(--text2);font-size:13px;font-weight:500;transition:.15s;margin-bottom:2px}
-.nav-item:hover{background:var(--bg3);color:var(--text)}
-.nav-item.active{background:linear-gradient(135deg,rgba(79,142,247,.2),rgba(124,58,237,.15));color:var(--accent);border:1px solid rgba(79,142,247,.25)}
-.nav-icon{font-size:15px;width:18px;text-align:center}
-.badge{margin-left:auto;background:var(--red);color:#fff;font-size:10px;font-weight:700;padding:1px 6px;border-radius:10px}
-.main{flex:1;display:flex;flex-direction:column;overflow:hidden}
-.topbar{background:var(--bg2);border-bottom:1px solid var(--border);padding:12px 20px;display:flex;align-items:center;gap:12px}
-.topbar h2{font-size:16px;font-weight:600;flex:1}
-.search-box{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:7px 12px;display:flex;align-items:center;gap:8px;width:220px}
-.search-box input{background:none;border:none;outline:none;color:var(--text);font-size:13px;font-family:var(--font);width:100%}
-.search-box input::placeholder{color:var(--text3)}
-.btn{padding:7px 14px;border-radius:8px;border:none;cursor:pointer;font-size:13px;font-weight:600;font-family:var(--font);transition:.15s;display:inline-flex;align-items:center;gap:6px}
-.btn-primary{background:var(--accent);color:#fff}
-.btn-primary:hover{background:#3b7de8}
-.btn-secondary{background:var(--bg3);color:var(--text2);border:1px solid var(--border)}
-.btn-secondary:hover{background:var(--bg4);color:var(--text)}
-.btn-success{background:#16a34a;color:#fff}
-.btn-danger{background:#dc2626;color:#fff}
-.btn-sm{padding:5px 10px;font-size:12px}
-.content{flex:1;overflow-y:auto;padding:20px}
-.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px}
-.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:20px}
-.grid-2{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-bottom:20px}
-.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px}
-.kpi{position:relative;overflow:hidden}
-.kpi-label{font-size:11px;font-weight:500;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
-.kpi-value{font-size:24px;font-weight:700;color:var(--text);line-height:1}
-.kpi-sub{font-size:11px;color:var(--text3);margin-top:5px}
-.kpi-icon{position:absolute;top:16px;right:16px;font-size:22px;opacity:.35}
-.kpi-change{display:inline-flex;align-items:center;gap:3px;font-size:11px;font-weight:600;padding:2px 7px;border-radius:20px;margin-top:6px}
-.kpi-change.up{background:rgba(34,197,94,.15);color:var(--green)}
-.kpi-change.down{background:rgba(239,68,68,.15);color:var(--red)}
-table{width:100%;border-collapse:collapse;font-size:13px}
-thead th{padding:8px 12px;text-align:left;color:var(--text3);font-weight:500;font-size:11px;text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid var(--border)}
-tbody tr{border-bottom:1px solid rgba(44,48,68,.5);transition:.15s;cursor:pointer}
-tbody tr:hover{background:rgba(79,142,247,.05)}
-tbody td{padding:10px 12px;color:var(--text2)}
-tbody td:first-child{color:var(--text);font-weight:500}
-.pill{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:20px;font-size:11px;font-weight:600}
-.pill.ok{background:rgba(34,197,94,.15);color:var(--green)}
-.pill.warn{background:rgba(245,158,11,.15);color:var(--amber)}
-.pill.out{background:rgba(239,68,68,.15);color:var(--red)}
-.pill.info{background:rgba(79,142,247,.15);color:var(--accent)}
-.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:100;display:flex;align-items:center;justify-content:center;padding:16px}
-.modal{background:var(--bg2);border:1px solid var(--border);border-radius:16px;width:100%;max-width:500px;max-height:90vh;overflow-y:auto}
-.modal-header{padding:18px 20px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
-.modal-header h3{font-size:15px;font-weight:600}
-.modal-body{padding:20px}
-.modal-footer{padding:14px 20px;border-top:1px solid var(--border);display:flex;gap:10px;justify-content:flex-end}
-.form-group{margin-bottom:14px}
-.form-group label{display:block;font-size:12px;font-weight:500;color:var(--text3);margin-bottom:6px;text-transform:uppercase;letter-spacing:.4px}
-.form-group input,.form-group select,.form-group textarea{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:9px 12px;color:var(--text);font-size:13px;font-family:var(--font);outline:none;transition:.15s}
-.form-group input:focus,.form-group select:focus{border-color:var(--accent)}
-.form-group select option{background:var(--bg2)}
-.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.alert-item{display:flex;align-items:center;gap:12px;padding:10px 14px;border-radius:10px;margin-bottom:8px;flex-wrap:wrap}
-.alert-item.critical{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.2)}
-.alert-item.warning{background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.2)}
-.alert-icon{font-size:20px}
-.alert-text{flex:1}
-.alert-text strong{display:block;font-size:13px;font-weight:600}
-.alert-text span{font-size:11px;color:var(--text3)}
-.chart-bar-container{display:flex;align-items:flex-end;gap:6px;height:110px;margin-top:8px}
-.chart-bar{flex:1;border-radius:4px 4px 0 0;transition:.5s;position:relative;cursor:pointer}
-.chart-bar:hover .bar-tip{opacity:1}
-.bar-tip{position:absolute;bottom:105%;left:50%;transform:translateX(-50%);background:var(--bg4);border:1px solid var(--border);padding:3px 8px;border-radius:6px;font-size:11px;white-space:nowrap;opacity:0;pointer-events:none;transition:.15s;z-index:10}
-.chart-labels{display:flex;gap:6px;margin-top:6px}
-.chart-labels span{flex:1;text-align:center;font-size:10px;color:var(--text3)}
-.progress-row{display:flex;align-items:center;gap:10px;margin-bottom:10px}
-.progress-label{font-size:11px;color:var(--text2);width:100px;flex-shrink:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.progress-bar{flex:1;height:6px;background:var(--bg3);border-radius:3px;overflow:hidden}
-.progress-fill{height:100%;border-radius:3px;transition:.5s}
-.progress-val{font-size:11px;font-weight:600;color:var(--text);width:100px;text-align:right;flex-shrink:0}
-.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
-.section-header h3{font-size:14px;font-weight:600}
-.empty{text-align:center;padding:40px;color:var(--text3)}
-.dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:4px}
-.dot.green{background:var(--green)}
-.dot.amber{background:var(--amber)}
-.dot.red{background:var(--red)}
-.toggle-switch{width:36px;height:20px;background:var(--bg3);border-radius:10px;position:relative;transition:.2s;border:1px solid var(--border);cursor:pointer;flex-shrink:0}
-.toggle-switch.on{background:var(--accent);border-color:var(--accent)}
-.toggle-switch::after{content:'';position:absolute;width:14px;height:14px;background:#fff;border-radius:50%;top:2px;left:2px;transition:.2s}
-.toggle-switch.on::after{left:18px}
-@media(max-width:700px){
-  .app{flex-direction:column}
-  .sidebar{width:100%;min-width:unset;flex-direction:row;height:56px;overflow-x:auto;border-right:none;border-bottom:1px solid var(--border)}
-  .logo{display:none}
-  .nav{display:flex;padding:6px;gap:2px;flex-direction:row;overflow-x:auto;align-items:center}
-  .nav-item{flex-direction:column;gap:1px;padding:5px 8px;font-size:9px;white-space:nowrap;min-width:fit-content}
-  .nav-icon{font-size:16px}
-  .badge{position:absolute;top:2px;right:2px;font-size:9px;padding:0 4px}
-  .nav-item{position:relative}
-  .grid-4{grid-template-columns:repeat(2,1fr)}
-  .grid-3{grid-template-columns:1fr 1fr}
-  .form-row{grid-template-columns:1fr}
-  .topbar{padding:8px 12px}
-  .search-box{width:130px}
-  .content{padding:12px}
-  table{font-size:12px}
-  tbody td{padding:8px 8px}
-  thead th{padding:6px 8px}
-}
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>StockFlow – Gestion de Stock</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📦</text></svg>" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+
+  <!-- Supabase -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+  <!-- SheetJS (Excel export) -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <!-- jsPDF + AutoTable (PDF export) -->
+  <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.8.2/dist/jspdf.plugin.autotable.min.js"></script>
 </head>
 <body>
 
-<div class="app">
-<aside class="sidebar" id="sidebar">
-  <div class="logo">
-    <h1>📦 StockPro</h1>
-    <span>Gestion de stock v1.0</span>
-  </div>
-  <nav class="nav">
-    <div class="nav-item active" onclick="showPage('dashboard')" id="nav-dashboard"><span class="nav-icon">🏠</span>Tableau de bord</div>
-    <div class="nav-item" onclick="showPage('products')" id="nav-products"><span class="nav-icon">📦</span>Produits</div>
-    <div class="nav-item" onclick="showPage('stock')" id="nav-stock" style="position:relative"><span class="nav-icon">🗄️</span>Stock<span class="badge" id="alert-badge">0</span></div>
-    <div class="nav-item" onclick="showPage('sales')" id="nav-sales"><span class="nav-icon">💰</span>Ventes</div>
-    <div class="nav-item" onclick="showPage('reports')" id="nav-reports"><span class="nav-icon">📊</span>Rapports</div>
-    <div class="nav-item" onclick="showPage('settings')" id="nav-settings"><span class="nav-icon">⚙️</span>Paramètres</div>
-  </nav>
-</aside>
+<!-- ===== APP SHELL ===== -->
+<div class="app" id="app">
 
-<div class="main">
-  <div class="topbar">
-    <h2 id="page-title">Tableau de bord</h2>
-    <div class="search-box">
-      <span style="color:var(--text3);font-size:13px">🔍</span>
-      <input type="text" placeholder="Rechercher..." id="global-search" oninput="globalSearch(this.value)">
-    </div>
-    <button class="btn btn-primary" id="main-action-btn" onclick="openAddProduct()">+ Produit</button>
-  </div>
-  <div class="content" id="main-content"></div>
-</div>
-</div>
-
-<div class="modal-bg" id="modal" style="display:none" onclick="if(event.target===this)closeModal()">
-  <div class="modal" id="modal-inner"></div>
-</div>
-
-<script>
-const $ = id => document.getElementById(id);
-let state = {
-  products: [
-    {id:1,name:'Riz Premium 25kg',category:'Alimentaire',sku:'ALI-001',price:18500,cost:14000,stock:45,minStock:20,unit:'Sac',supplier:'AgroSud',img:'🌾'},
-    {id:2,name:'Huile Palme 5L',category:'Alimentaire',sku:'ALI-002',price:4200,cost:3100,stock:8,minStock:15,unit:'Bidon',supplier:'AgroSud',img:'🫙'},
-    {id:3,name:'Ciment Portland 50kg',category:'Matériaux',sku:'MAT-001',price:8500,cost:6800,stock:0,minStock:10,unit:'Sac',supplier:'CimBuild',img:'🧱'},
-    {id:4,name:'Téléphone Samsung A14',category:'Électronique',sku:'ELE-001',price:95000,cost:78000,stock:12,minStock:5,unit:'Pièce',supplier:'TechShop',img:'📱'},
-    {id:5,name:'Savon Marseille x6',category:'Hygiène',sku:'HYG-001',price:2800,cost:1900,stock:3,minStock:20,unit:'Pack',supplier:'CleanCo',img:'🧼'},
-    {id:6,name:'Câble HDMI 2m',category:'Électronique',sku:'ELE-002',price:3500,cost:2200,stock:25,minStock:10,unit:'Pièce',supplier:'TechShop',img:'🔌'},
-  ],
-  sales: [
-    {id:1,date:'2026-04-20',product:'Riz Premium 25kg',qty:5,price:18500,total:92500,client:'Supermarché A'},
-    {id:2,date:'2026-04-20',product:'Huile Palme 5L',qty:10,price:4200,total:42000,client:'Épicerie B'},
-    {id:3,date:'2026-04-19',product:'Téléphone Samsung A14',qty:2,price:95000,total:190000,client:'Client direct'},
-    {id:4,date:'2026-04-19',product:'Câble HDMI 2m',qty:8,price:3500,total:28000,client:'Bureau C'},
-    {id:5,date:'2026-04-18',product:'Savon Marseille x6',qty:15,price:2800,total:42000,client:'Grossiste D'},
-    {id:6,date:'2026-04-17',product:'Riz Premium 25kg',qty:3,price:18500,total:55500,client:'Supermarché A'},
-  ],
-  settings:{currency:'FCFA',lowStockThreshold:20,outOfStockAlert:true,lowStockAlert:true,companyName:'Mon Entreprise'},
-  nextId:7,nextSaleId:7,
-  searchFilter:''
-};
-
-function fmt(n){return new Intl.NumberFormat('fr-FR').format(Math.round(n));}
-function fmtCur(n){return fmt(n)+' '+state.settings.currency;}
-function stockStatus(p){
-  if(p.stock===0)return{label:'Rupture',cls:'out'};
-  if(p.stock<=p.minStock)return{label:'Stock faible',cls:'warn'};
-  return{label:'Normal',cls:'ok'};
-}
-function getAlerts(){return state.products.filter(p=>p.stock===0||(p.stock<=p.minStock));}
-function updateBadge(){
-  const n=getAlerts().length;
-  const b=$('alert-badge');if(!b)return;
-  b.textContent=n;b.style.display=n?'inline':'none';
-}
-
-let currentPage='dashboard';
-function showPage(page){
-  currentPage=page;state.searchFilter='';
-  const si=$('global-search');if(si)si.value='';
-  document.querySelectorAll('.nav-item').forEach(e=>e.classList.remove('active'));
-  $('nav-'+page)?.classList.add('active');
-  const titles={dashboard:'Tableau de bord',products:'Produits',stock:'Gestion du stock',sales:'Ventes',reports:'Rapports & Statistiques',settings:'Paramètres'};
-  $('page-title').textContent=titles[page]||page;
-  const btnLabels={dashboard:null,products:'+ Produit',stock:'+ Entrée stock',sales:'+ Vente',reports:null,settings:null};
-  const btn=$('main-action-btn');
-  if(btnLabels[page]){btn.textContent=btnLabels[page];btn.style.display='inline-flex';}
-  else{btn.style.display='none';}
-  const actions={products:openAddProduct,stock:openAddStock,sales:openAddSale};
-  btn.onclick=actions[page]||null;
-  render();
-}
-
-function render(){
-  const c=$('main-content');
-  if(currentPage==='dashboard')c.innerHTML=renderDashboard();
-  else if(currentPage==='products')c.innerHTML=renderProducts(state.searchFilter);
-  else if(currentPage==='stock')c.innerHTML=renderStock();
-  else if(currentPage==='sales')c.innerHTML=renderSales();
-  else if(currentPage==='reports'){c.innerHTML=renderReports();drawCharts();}
-  else if(currentPage==='settings')c.innerHTML=renderSettings();
-}
-
-function renderDashboard(){
-  const totalStockVal=state.products.reduce((a,p)=>a+p.cost*p.stock,0);
-  const totalSalesVal=state.sales.reduce((a,s)=>a+s.total,0);
-  const alerts=getAlerts();
-  const totalItems=state.products.reduce((a,p)=>a+p.stock,0);
-  const todaySales=state.sales.filter(s=>s.date==='2026-04-21').reduce((a,s)=>a+s.total,0);
-  const margin=state.sales.reduce((a,s)=>{const p=state.products.find(x=>x.name===s.product);return a+(p?(s.price-p.cost)*s.qty:0);},0);
-  return`
-  <div class="grid-4">
-    <div class="card kpi"><div class="kpi-icon">📦</div><div class="kpi-label">Total produits</div><div class="kpi-value">${state.products.length}</div><div class="kpi-sub">${totalItems} unités en stock</div></div>
-    <div class="card kpi"><div class="kpi-icon">💰</div><div class="kpi-label">Valeur du stock</div><div class="kpi-value" style="font-size:17px">${fmtCur(totalStockVal)}</div><div class="kpi-change up">↑ coût d'achat</div></div>
-    <div class="card kpi"><div class="kpi-icon">🛒</div><div class="kpi-label">Total ventes</div><div class="kpi-value" style="font-size:17px">${fmtCur(totalSalesVal)}</div><div class="kpi-sub">Marge: ${fmtCur(margin)}</div></div>
-    <div class="card kpi"><div class="kpi-icon">⚠️</div><div class="kpi-label">Alertes stock</div><div class="kpi-value" style="color:${alerts.length?'var(--red)':'var(--green)'}">${alerts.length}</div><div class="kpi-sub">${alerts.filter(p=>p.stock===0).length} ruptures · ${alerts.filter(p=>p.stock>0&&p.stock<=p.minStock).length} faibles</div></div>
-  </div>
-  ${alerts.length?`<div class="card" style="margin-bottom:16px">
-    <div class="section-header"><h3>🔔 Alertes actives</h3><span style="font-size:12px;color:var(--text3)">${alerts.length} produit(s) à réapprovisionner</span></div>
-    ${alerts.map(p=>`<div class="alert-item ${p.stock===0?'critical':'warning'}">
-      <span class="alert-icon">${p.img}</span>
-      <div class="alert-text"><strong>${p.name}</strong>
-      <span>${p.stock===0?'⛔ Rupture totale':'⚠️ Stock faible'} · Stock actuel: ${p.stock} ${p.unit} · Min requis: ${p.minStock}</span></div>
-      <button class="btn btn-secondary btn-sm" onclick="openAddStock(${p.id})">Réappro</button>
-    </div>`).join('')}
-  </div>`:'<div class="card" style="margin-bottom:16px"><div class="alert-item" style="background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.2)"><span class="alert-icon">✅</span><div class="alert-text"><strong>Tous les stocks sont OK</strong><span>Aucune alerte en ce moment</span></div></div></div>'}
-  <div class="grid-2">
-    <div class="card"><div class="section-header"><h3>📦 Produits</h3><button class="btn btn-secondary btn-sm" onclick="showPage('products')">Voir tout →</button></div>
-    <table><thead><tr><th>Produit</th><th>Catégorie</th><th>Stock</th><th>Statut</th></tr></thead><tbody>
-    ${state.products.slice(0,6).map(p=>{const s=stockStatus(p);return`<tr onclick="openEditProduct(${p.id})"><td><span style="margin-right:6px">${p.img}</span>${p.name}</td><td>${p.category}</td><td>${p.stock}</td><td><span class="pill ${s.cls}">${s.label}</span></td></tr>`;}).join('')}
-    </tbody></table></div>
-    <div class="card"><div class="section-header"><h3>💰 Dernières ventes</h3><button class="btn btn-secondary btn-sm" onclick="showPage('sales')">Voir tout →</button></div>
-    <table><thead><tr><th>Produit</th><th>Qté</th><th>Total</th></tr></thead><tbody>
-    ${state.sales.slice(0,6).map(s=>`<tr><td>${s.product.substring(0,18)}${s.product.length>18?'...':''}</td><td>${s.qty}</td><td style="color:var(--green);font-weight:600">${fmtCur(s.total)}</td></tr>`).join('')}
-    </tbody></table></div>
-  </div>`;
-}
-
-function renderProducts(filter){
-  filter=filter||'';
-  const prods=filter?state.products.filter(p=>p.name.toLowerCase().includes(filter)||p.category.toLowerCase().includes(filter)||p.sku.toLowerCase().includes(filter)):state.products;
-  const cats=[...new Set(state.products.map(p=>p.category))];
-  return`<div class="section-header"><h3>${prods.length} produit(s)</h3>
-    <div style="display:flex;gap:8px;flex-wrap:wrap">
-      <select onchange="filterByCategory(this.value)" style="background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:6px 10px;color:var(--text);font-size:12px;font-family:var(--font);cursor:pointer">
-        <option value="">Toutes catégories</option>
-        ${cats.map(c=>`<option>${c}</option>`).join('')}
-      </select>
-    </div></div>
-  <div class="card" style="padding:0;overflow:hidden;overflow-x:auto">
-  <table><thead><tr><th>Produit</th><th>SKU</th><th>Catégorie</th><th>Prix vente</th><th>Coût achat</th><th>Stock</th><th>Valeur</th><th>Statut</th><th>Actions</th></tr></thead><tbody>
-  ${prods.length===0?`<tr><td colspan="9"><div class="empty">Aucun produit trouvé</div></td></tr>`:''}
-  ${prods.map(p=>{const s=stockStatus(p);return`<tr>
-    <td><div style="display:flex;align-items:center;gap:8px"><span style="font-size:18px">${p.img}</span><div><div style="font-weight:600">${p.name}</div><div style="font-size:11px;color:var(--text3)">${p.supplier} · ${p.unit}</div></div></div></td>
-    <td><code style="background:var(--bg3);padding:2px 6px;border-radius:4px;font-size:11px">${p.sku}</code></td>
-    <td>${p.category}</td>
-    <td style="font-weight:600;color:var(--accent)">${fmtCur(p.price)}</td>
-    <td style="color:var(--text3)">${fmtCur(p.cost)}</td>
-    <td><strong>${p.stock}</strong></td>
-    <td>${fmtCur(p.cost*p.stock)}</td>
-    <td><span class="pill ${s.cls}">${s.label}</span></td>
-    <td><div style="display:flex;gap:4px">
-      <button class="btn btn-secondary btn-sm" onclick="openEditProduct(${p.id});event.stopPropagation()">✏️</button>
-      <button class="btn btn-secondary btn-sm" onclick="deleteProduct(${p.id});event.stopPropagation()">🗑️</button>
-    </div></td>
-  </tr>`;}).join('')}
-  </tbody></table></div>`;
-}
-
-function renderStock(){
-  const alerts=getAlerts();
-  return`
-  ${alerts.length?`<div class="card" style="margin-bottom:16px">
-    <div class="section-header"><h3>⚠️ Alertes (${alerts.length})</h3></div>
-    ${alerts.map(p=>`<div class="alert-item ${p.stock===0?'critical':'warning'}">
-      <span class="alert-icon">${p.img}</span>
-      <div class="alert-text"><strong>${p.name}</strong>
-      <span>${p.stock===0?'⛔ RUPTURE DE STOCK':'⚠️ Stock faible'} · Actuel: ${p.stock} ${p.unit} · Min: ${p.minStock} · Fournisseur: ${p.supplier}</span></div>
-      <button class="btn btn-primary btn-sm" onclick="openAddStock(${p.id})">+ Réappro</button>
-    </div>`).join('')}</div>`
-    :`<div class="card" style="margin-bottom:16px"><div class="alert-item" style="background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.2)"><span class="alert-icon">✅</span><div class="alert-text"><strong>Tous les stocks sont OK</strong><span>Aucune alerte en ce moment</span></div></div></div>`}
-  <div class="card" style="padding:0;overflow:hidden;overflow-x:auto">
-    <div style="padding:14px 16px 10px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center">
-      <h3 style="font-size:14px;font-weight:600">Niveaux de stock</h3>
-      <span style="font-size:12px;color:var(--text3)">Valeur totale: <strong style="color:var(--text)">${fmtCur(state.products.reduce((a,p)=>a+p.cost*p.stock,0))}</strong></span>
-    </div>
-    <table><thead><tr><th>Produit</th><th>Catégorie</th><th>Stock actuel</th><th>Min</th><th>Jauge</th><th>Fournisseur</th><th>Valeur stock</th><th>Statut</th></tr></thead><tbody>
-    ${state.products.map(p=>{const s=stockStatus(p);const pct=p.minStock>0?Math.min(100,Math.round(p.stock/p.minStock*50)):50;const color=p.stock===0?'var(--red)':p.stock<=p.minStock?'var(--amber)':'var(--green)';return`<tr>
-      <td><span style="margin-right:6px">${p.img}</span>${p.name}</td>
-      <td>${p.category}</td>
-      <td><strong>${p.stock}</strong> <span style="color:var(--text3);font-size:11px">${p.unit}</span></td>
-      <td style="color:var(--text3)">${p.minStock}</td>
-      <td><div style="width:80px;height:6px;background:var(--bg3);border-radius:3px"><div style="width:${Math.min(100,pct)}%;height:100%;background:${color};border-radius:3px"></div></div></td>
-      <td style="font-size:12px">${p.supplier}</td>
-      <td>${fmtCur(p.cost*p.stock)}</td>
-      <td><span class="pill ${s.cls}"><span class="dot ${s.cls==='ok'?'green':s.cls==='warn'?'amber':'red'}"></span>${s.label}</span></td>
-    </tr>`;}).join('')}
-    </tbody></table></div>`;
-}
-
-function renderSales(){
-  const total=state.sales.reduce((a,s)=>a+s.total,0);
-  const qty=state.sales.reduce((a,s)=>a+s.qty,0);
-  const avg=state.sales.length?total/state.sales.length:0;
-  return`
-  <div class="grid-3" style="margin-bottom:20px">
-    <div class="card kpi"><div class="kpi-icon">💰</div><div class="kpi-label">Chiffre d'affaires</div><div class="kpi-value" style="font-size:18px">${fmtCur(total)}</div></div>
-    <div class="card kpi"><div class="kpi-icon">🧾</div><div class="kpi-label">Nb transactions</div><div class="kpi-value">${state.sales.length}</div><div class="kpi-sub">Panier moyen: ${fmtCur(avg)}</div></div>
-    <div class="card kpi"><div class="kpi-icon">📦</div><div class="kpi-label">Unités vendues</div><div class="kpi-value">${qty}</div></div>
-  </div>
-  <div class="card" style="padding:0;overflow:hidden;overflow-x:auto">
-  <table><thead><tr><th>Date</th><th>Produit</th><th>Client</th><th>Qté</th><th>Prix unit.</th><th>Total</th><th></th></tr></thead><tbody>
-  ${state.sales.length===0?`<tr><td colspan="7"><div class="empty">Aucune vente enregistrée</div></td></tr>`:''}
-  ${state.sales.map(s=>`<tr>
-    <td style="color:var(--text3);font-size:12px">${s.date}</td>
-    <td>${s.product}</td>
-    <td>${s.client}</td>
-    <td>${s.qty}</td>
-    <td>${fmtCur(s.price)}</td>
-    <td style="color:var(--green);font-weight:700">${fmtCur(s.total)}</td>
-    <td><button class="btn btn-secondary btn-sm" onclick="deleteSale(${s.id});event.stopPropagation()">🗑️</button></td>
-  </tr>`).join('')}
-  </tbody></table></div>`;
-}
-
-function renderReports(){
-  const cats={};
-  state.products.forEach(p=>{if(!cats[p.category])cats[p.category]={val:0,count:0};cats[p.category].val+=p.cost*p.stock;cats[p.category].count++;});
-  const catEntries=Object.entries(cats).sort((a,b)=>b[1].val-a[1].val);
-  const totalVal=catEntries.reduce((a,c)=>a+c[1].val,0);
-  const salesByProd={};
-  state.sales.forEach(s=>{if(!salesByProd[s.product])salesByProd[s.product]=0;salesByProd[s.product]+=s.total;});
-  const topProds=Object.entries(salesByProd).sort((a,b)=>b[1]-a[1]);
-  const margin=state.sales.reduce((a,s)=>{const p=state.products.find(x=>x.name===s.product);return a+(p?(s.price-p.cost)*s.qty:0);},0);
-  const totalSales=state.sales.reduce((a,s)=>a+s.total,0);
-  const marginPct=totalSales>0?Math.round(margin/totalSales*100):0;
-  return`
-  <div class="grid-4">
-    <div class="card kpi"><div class="kpi-icon">🗄️</div><div class="kpi-label">Valeur totale stock</div><div class="kpi-value" style="font-size:15px">${fmtCur(state.products.reduce((a,p)=>a+p.cost*p.stock,0))}</div></div>
-    <div class="card kpi"><div class="kpi-icon">📈</div><div class="kpi-label">Marge bénéficiaire</div><div class="kpi-value">${marginPct}%</div><div class="kpi-sub">${fmtCur(margin)}</div></div>
-    <div class="card kpi"><div class="kpi-icon">⛔</div><div class="kpi-label">Ruptures de stock</div><div class="kpi-value" style="color:var(--red)">${state.products.filter(p=>p.stock===0).length}</div></div>
-    <div class="card kpi"><div class="kpi-icon">🛒</div><div class="kpi-label">Total transactions</div><div class="kpi-value">${state.sales.length}</div></div>
-  </div>
-  <div class="grid-2">
-    <div class="card">
-      <div class="section-header"><h3>📊 Ventes hebdomadaires</h3></div>
-      <div id="sales-chart"></div>
-    </div>
-    <div class="card">
-      <div class="section-header"><h3>🏷️ Répartition stock par catégorie</h3></div>
-      ${catEntries.length===0?'<div class="empty">Aucune donnée</div>':catEntries.map(([cat,data])=>`
-      <div class="progress-row">
-        <div class="progress-label">${cat}</div>
-        <div class="progress-bar"><div class="progress-fill" style="width:${totalVal>0?Math.round(data.val/totalVal*100):0}%;background:var(--accent)"></div></div>
-        <div class="progress-val">${fmtCur(data.val)}</div>
-      </div>`).join('')}
-    </div>
-  </div>
-  <div class="grid-2">
-    <div class="card">
-      <div class="section-header"><h3>🏆 Top produits par ventes</h3></div>
-      ${topProds.length===0?'<div class="empty">Aucune vente</div>':topProds.slice(0,5).map(([name,val],i)=>`
-      <div class="progress-row">
-        <div class="progress-label">${i===0?'🥇':i===1?'🥈':i===2?'🥉':'  '} ${name.substring(0,14)}</div>
-        <div class="progress-bar"><div class="progress-fill" style="width:${topProds[0][1]>0?Math.round(val/topProds[0][1]*100):0}%;background:var(--green)"></div></div>
-        <div class="progress-val">${fmtCur(val)}</div>
-      </div>`).join('')}
-    </div>
-    <div class="card">
-      <div class="section-header"><h3>📋 Résumé financier</h3></div>
-      <div style="display:flex;flex-direction:column;gap:10px">
-        <div style="display:flex;justify-content:space-between;padding:10px;background:var(--bg3);border-radius:8px"><span style="color:var(--text3);font-size:13px">Chiffre d'affaires</span><strong style="color:var(--green)">${fmtCur(totalSales)}</strong></div>
-        <div style="display:flex;justify-content:space-between;padding:10px;background:var(--bg3);border-radius:8px"><span style="color:var(--text3);font-size:13px">Coût des marchandises</span><strong style="color:var(--red)">${fmtCur(totalSales-margin)}</strong></div>
-        <div style="display:flex;justify-content:space-between;padding:10px;background:rgba(34,197,94,.1);border-radius:8px;border:1px solid rgba(34,197,94,.2)"><span style="color:var(--text);font-size:13px;font-weight:600">Bénéfice brut</span><strong style="color:var(--green);font-size:16px">${fmtCur(margin)}</strong></div>
-        <div style="display:flex;justify-content:space-between;padding:8px;"><span style="color:var(--text3);font-size:12px">Taux de marge</span><strong style="color:var(--accent)">${marginPct}%</strong></div>
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="logo">
+      <div class="logo-icon">📦</div>
+      <div>
+        <h1>StockFlow</h1>
+        <span id="company-name-display">Mon Entreprise</span>
       </div>
     </div>
-  </div>`;
-}
-
-function renderSettings(){
-  return`
-  <div class="grid-2">
-    <div class="card">
-      <h3 style="margin-bottom:16px;font-size:14px">🏢 Informations entreprise</h3>
-      <div class="form-group"><label>Nom de l'entreprise</label><input id="s-company" value="${state.settings.companyName}" onchange="saveSetting('companyName',this.value)"></div>
-      <div class="form-group"><label>Devise</label>
-      <select id="s-currency" onchange="saveSetting('currency',this.value)">
-        <option ${state.settings.currency==='FCFA'?'selected':''}>FCFA</option>
-        <option ${state.settings.currency==='XOF'?'selected':''}>XOF</option>
-        <option ${state.settings.currency==='EUR'?'selected':''}>EUR</option>
-        <option ${state.settings.currency==='USD'?'selected':''}>USD</option>
-        <option ${state.settings.currency==='MAD'?'selected':''}>MAD</option>
-        <option ${state.settings.currency==='CDF'?'selected':''}>CDF</option>
-        <option ${state.settings.currency==='DZD'?'selected':''}>DZD</option>
-        <option ${state.settings.currency==='TND'?'selected':''}>TND</option>
-      </select></div>
+    <nav class="nav">
+      <div class="nav-item active" data-page="dashboard" onclick="showPage('dashboard')">
+        <span class="nav-icon">🏠</span><span class="nav-label">Tableau de bord</span>
+      </div>
+      <div class="nav-item" data-page="products" onclick="showPage('products')">
+        <span class="nav-icon">📦</span><span class="nav-label">Produits</span>
+      </div>
+      <div class="nav-item" data-page="stock" onclick="showPage('stock')">
+        <span class="nav-icon">🗄️</span><span class="nav-label">Stock</span>
+        <span class="badge" id="alert-badge" style="display:none">0</span>
+      </div>
+      <div class="nav-item" data-page="sales" onclick="showPage('sales')">
+        <span class="nav-icon">💰</span><span class="nav-label">Ventes</span>
+      </div>
+      <div class="nav-item" data-page="reports" onclick="showPage('reports')">
+        <span class="nav-icon">📊</span><span class="nav-label">Rapports</span>
+      </div>
+      <div class="nav-item" data-page="settings" onclick="showPage('settings')">
+        <span class="nav-icon">⚙️</span><span class="nav-label">Paramètres</span>
+      </div>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="sync-status" id="sync-status">
+        <span class="sync-dot"></span>
+        <span id="sync-label">Connecté</span>
+      </div>
     </div>
-    <div class="card">
-      <h3 style="margin-bottom:16px;font-size:14px">🔔 Alertes & Notifications</h3>
-      <div style="display:flex;flex-direction:column;gap:16px">
-        <div style="display:flex;align-items:center;justify-content:space-between">
-          <div><strong style="font-size:13px">Alerte rupture de stock</strong><div style="font-size:11px;color:var(--text3);margin-top:2px">Notifier quand stock = 0</div></div>
-          <div class="toggle-switch ${state.settings.outOfStockAlert?'on':''}" id="t-out" onclick="toggleSetting('outOfStockAlert','t-out')"></div>
+  </aside>
+
+  <!-- Main -->
+  <div class="main">
+    <div class="topbar">
+      <button class="menu-toggle" id="menu-toggle" onclick="toggleSidebar()">☰</button>
+      <h2 id="page-title">Tableau de bord</h2>
+      <div class="topbar-right">
+        <div class="search-box">
+          <span class="search-icon">🔍</span>
+          <input type="text" id="global-search" placeholder="Rechercher produit..." oninput="onSearch(this.value)" />
         </div>
-        <div style="display:flex;align-items:center;justify-content:space-between">
-          <div><strong style="font-size:13px">Alerte stock faible</strong><div style="font-size:11px;color:var(--text3);margin-top:2px">Notifier sous le seuil minimum</div></div>
-          <div class="toggle-switch ${state.settings.lowStockAlert?'on':''}" id="t-low" onclick="toggleSetting('lowStockAlert','t-low')"></div>
-        </div>
-        <div class="form-group" style="margin:0"><label>Seuil stock faible par défaut</label><input type="number" id="s-threshold" value="${state.settings.lowStockThreshold}" onchange="saveSetting('lowStockThreshold',+this.value)" min="1"></div>
+        <button class="btn btn-primary" id="main-action-btn" onclick="openAddProduct()">
+          <span>+</span> Produit
+        </button>
       </div>
     </div>
-  </div>
-  <div class="card" style="margin-bottom:14px">
-    <h3 style="margin-bottom:12px;font-size:14px">🏷️ Catégories de produits prédéfinies</h3>
-    <p style="font-size:12px;color:var(--text3);margin-bottom:10px">Catégories disponibles pour organiser vos produits (toutes sortes acceptées)</p>
-    <div style="display:flex;flex-wrap:wrap;gap:8px">
-      ${['Alimentaire','Électronique','Vêtements','Matériaux de construction','Hygiène','Mobilier','Pharmacie / Médical','Agricole','Textile','Boissons','Cosmétique','Quincaillerie','Informatique','Auto / Moto','Papeterie','Jouets','Sport','Artisanat'].map(c=>`<span class="pill info">${c}</span>`).join('')}
+
+    <!-- Loading overlay -->
+    <div class="loading-overlay" id="loading-overlay">
+      <div class="spinner"></div>
+      <span>Chargement...</span>
+    </div>
+
+    <!-- Page content -->
+    <div class="content" id="main-content">
+      <!-- Rendered by JS -->
     </div>
   </div>
-  <div class="card">
-    <h3 style="margin-bottom:12px;font-size:14px">📥 Gestion des données</h3>
-    <div style="display:flex;gap:10px;flex-wrap:wrap">
-      <button class="btn btn-secondary" onclick="exportData()">⬇️ Exporter JSON</button>
-      <button class="btn btn-secondary" onclick="printReport()">🖨️ Imprimer rapport</button>
-      <button class="btn btn-danger" onclick="if(confirm('Réinitialiser TOUTES les données ? Cette action est irréversible.'))resetData()">🗑️ Réinitialiser les données</button>
-    </div>
-    <div style="margin-top:12px;padding:10px;background:var(--bg3);border-radius:8px;font-size:12px;color:var(--text3)">
-      💡 ${state.products.length} produit(s) · ${state.sales.length} vente(s) enregistrée(s)
-    </div>
-  </div>`;
-}
+</div>
 
-function drawCharts(){
-  const el=$('sales-chart');if(!el)return;
-  const days=['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'];
-  const vals=[42000,85000,190000,67000,134000,50000,28000];
-  const max=Math.max(...vals);
-  el.innerHTML=`<div class="chart-bar-container">
-    ${vals.map((v,i)=>`<div class="chart-bar" style="height:${Math.round(v/max*100)}px;background:var(--accent);opacity:${0.5+i/vals.length*0.5}"><div class="bar-tip">${days[i]}: ${fmtCur(v)}</div></div>`).join('')}
-  </div><div class="chart-labels">${days.map(d=>`<span>${d}</span>`).join('')}</div>`;
-}
+<!-- ===== MODAL ===== -->
+<div class="modal-bg" id="modal" onclick="if(event.target===this)closeModal()">
+  <div class="modal-box" id="modal-inner"></div>
+</div>
 
-function saveSetting(key,val){
-  state.settings[key]=val;
-  if(key==='currency')render();
-}
-function toggleSetting(key,elId){
-  state.settings[key]=!state.settings[key];
-  const el=$(elId);if(el)el.classList.toggle('on',state.settings[key]);
-}
+<!-- ===== TOAST ===== -->
+<div class="toast-container" id="toast-container"></div>
 
-// Product CRUD
-function openAddProduct(){
-  const cats=[...new Set(state.products.map(p=>p.category))];
-  showModal(`<div class="modal-header"><h3>➕ Nouveau produit</h3><button class="btn btn-secondary btn-sm" onclick="closeModal()">✕</button></div>
-  <div class="modal-body">
-    <div class="form-group"><label>Nom du produit *</label><input id="m-name" placeholder="Ex: Riz Premium 25kg"></div>
-    <div class="form-row">
-      <div class="form-group"><label>Catégorie *</label>
-        <input id="m-cat" list="cats-list" placeholder="Choisir ou saisir">
-        <datalist id="cats-list">${cats.map(c=>`<option value="${c}">`).join('')}<option value="Alimentaire"><option value="Électronique"><option value="Vêtements"><option value="Matériaux"><option value="Hygiène"><option value="Mobilier"><option value="Pharmacie"><option value="Agricole"><option value="Textile"><option value="Boissons"></datalist>
-      </div>
-      <div class="form-group"><label>Émoji icône</label><input id="m-img" placeholder="📦" maxlength="4" value="📦"></div>
-    </div>
-    <div class="form-row">
-      <div class="form-group"><label>Prix de vente (${state.settings.currency}) *</label><input id="m-price" type="number" placeholder="0" min="0"></div>
-      <div class="form-group"><label>Prix d'achat / coût</label><input id="m-cost" type="number" placeholder="0" min="0"></div>
-    </div>
-    <div class="form-row">
-      <div class="form-group"><label>Stock initial</label><input id="m-stock" type="number" placeholder="0" min="0"></div>
-      <div class="form-group"><label>Stock minimum (alerte)</label><input id="m-minstock" type="number" placeholder="5" min="0"></div>
-    </div>
-    <div class="form-row">
-      <div class="form-group"><label>Unité de mesure</label><input id="m-unit" placeholder="Pièce, Kg, Litre, Sac..." value="Pièce"></div>
-      <div class="form-group"><label>Fournisseur</label><input id="m-supplier" placeholder="Nom du fournisseur"></div>
-    </div>
-    <div class="form-group"><label>Référence / SKU</label><input id="m-sku" placeholder="Code unique ex: ALI-001"></div>
-  </div>
-  <div class="modal-footer">
-    <button class="btn btn-secondary" onclick="closeModal()">Annuler</button>
-    <button class="btn btn-primary" onclick="addProduct()">💾 Enregistrer</button>
-  </div>`);
-}
-
-function addProduct(){
-  const name=$('m-name')?.value.trim();
-  const cat=$('m-cat')?.value.trim();
-  if(!name){alert('Le nom du produit est requis.');return;}
-  if(!cat){alert('La catégorie est requise.');return;}
-  const price=+($('m-price')?.value||0);
-  if(!price){alert('Le prix de vente est requis.');return;}
-  const p={
-    id:state.nextId++,name,category:cat,
-    sku:$('m-sku')?.value.trim()||`PRD-${String(state.nextId-1).padStart(3,'0')}`,
-    price,cost:+($('m-cost')?.value||0),
-    stock:+($('m-stock')?.value||0),
-    minStock:+($('m-minstock')?.value||5),
-    unit:$('m-unit')?.value.trim()||'Pièce',
-    supplier:$('m-supplier')?.value.trim()||'—',
-    img:$('m-img')?.value.trim()||'📦'
-  };
-  state.products.push(p);
-  closeModal();updateBadge();render();
-}
-
-function openEditProduct(id){
-  const p=state.products.find(x=>x.id===id);if(!p)return;
-  showModal(`<div class="modal-header"><h3>✏️ Modifier: ${p.name}</h3><button class="btn btn-secondary btn-sm" onclick="closeModal()">✕</button></div>
-  <div class="modal-body">
-    <div class="form-group"><label>Nom du produit</label><input id="e-name" value="${p.name}"></div>
-    <div class="form-row">
-      <div class="form-group"><label>Catégorie</label><input id="e-cat" value="${p.category}"></div>
-      <div class="form-group"><label>Émoji</label><input id="e-img" value="${p.img}" maxlength="4"></div>
-    </div>
-    <div class="form-row">
-      <div class="form-group"><label>Prix de vente</label><input id="e-price" type="number" value="${p.price}"></div>
-      <div class="form-group"><label>Prix d'achat</label><input id="e-cost" type="number" value="${p.cost}"></div>
-    </div>
-    <div class="form-row">
-      <div class="form-group"><label>Stock actuel</label><input id="e-stock" type="number" value="${p.stock}"></div>
-      <div class="form-group"><label>Stock minimum</label><input id="e-minstock" type="number" value="${p.minStock}"></div>
-    </div>
-    <div class="form-row">
-      <div class="form-group"><label>Unité</label><input id="e-unit" value="${p.unit}"></div>
-      <div class="form-group"><label>Fournisseur</label><input id="e-supplier" value="${p.supplier}"></div>
-    </div>
-    <div class="form-group"><label>SKU</label><input id="e-sku" value="${p.sku}"></div>
-  </div>
-  <div class="modal-footer">
-    <button class="btn btn-danger btn-sm" onclick="deleteProduct(${id});closeModal()">Supprimer</button>
-    <button class="btn btn-secondary" onclick="closeModal()">Annuler</button>
-    <button class="btn btn-primary" onclick="saveEdit(${id})">💾 Sauvegarder</button>
-  </div>`);
-}
-
-function saveEdit(id){
-  const p=state.products.find(x=>x.id===id);if(!p)return;
-  p.name=$('e-name')?.value.trim()||p.name;
-  p.category=$('e-cat')?.value.trim()||p.category;
-  p.img=$('e-img')?.value.trim()||p.img;
-  p.price=+($('e-price')?.value||0);
-  p.cost=+($('e-cost')?.value||0);
-  p.stock=+($('e-stock')?.value||0);
-  p.minStock=+($('e-minstock')?.value||0);
-  p.unit=$('e-unit')?.value.trim()||p.unit;
-  p.supplier=$('e-supplier')?.value.trim()||p.supplier;
-  p.sku=$('e-sku')?.value.trim()||p.sku;
-  closeModal();updateBadge();render();
-}
-
-function deleteProduct(id){
-  if(!confirm('Supprimer ce produit définitivement ?'))return;
-  state.products=state.products.filter(p=>p.id!==id);
-  updateBadge();render();
-}
-
-// Stock management
-function openAddStock(id){
-  const prodId=typeof id==='number'?id:null;
-  showModal(`<div class="modal-header"><h3>📥 Entrée / Ajustement de stock</h3><button class="btn btn-secondary btn-sm" onclick="closeModal()">✕</button></div>
-  <div class="modal-body">
-    <div class="form-group"><label>Produit *</label>
-    <select id="s-prod">${state.products.map(p=>`<option value="${p.id}" ${p.id===prodId?'selected':''}>${p.img} ${p.name} (stock: ${p.stock} ${p.unit})</option>`).join('')}</select></div>
-    <div class="form-row">
-      <div class="form-group"><label>Type d'opération</label>
-        <select id="s-type">
-          <option value="add">➕ Entrée (réapprovisionnement)</option>
-          <option value="sub">➖ Sortie (retour/perte)</option>
-          <option value="set">📋 Définir valeur exacte</option>
-        </select>
-      </div>
-      <div class="form-group"><label>Quantité *</label><input id="s-qty" type="number" placeholder="0" min="1"></div>
-    </div>
-    <div class="form-group"><label>Motif (optionnel)</label><input id="s-reason" placeholder="Réapprovisionnement, retour fournisseur, inventaire..."></div>
-  </div>
-  <div class="modal-footer">
-    <button class="btn btn-secondary" onclick="closeModal()">Annuler</button>
-    <button class="btn btn-primary" onclick="applyStock()">✅ Appliquer</button>
-  </div>`);
-}
-
-function applyStock(){
-  const pid=+$('s-prod')?.value;
-  const type=$('s-type')?.value;
-  const qty=+$('s-qty')?.value;
-  if(!qty||qty<0){alert('Veuillez entrer une quantité valide.');return;}
-  const p=state.products.find(x=>x.id===pid);if(!p)return;
-  if(type==='add')p.stock+=qty;
-  else if(type==='sub')p.stock=Math.max(0,p.stock-qty);
-  else p.stock=qty;
-  closeModal();updateBadge();render();
-}
-
-// Sales
-function openAddSale(){
-  const available=state.products.filter(p=>p.stock>0);
-  if(!available.length){alert('Aucun produit en stock disponible pour la vente.');return;}
-  showModal(`<div class="modal-header"><h3>💰 Enregistrer une vente</h3><button class="btn btn-secondary btn-sm" onclick="closeModal()">✕</button></div>
-  <div class="modal-body">
-    <div class="form-group"><label>Produit *</label>
-    <select id="v-prod" onchange="updateSalePrice()">
-      ${available.map(p=>`<option value="${p.id}" data-price="${p.price}">${p.img} ${p.name} — dispo: ${p.stock} ${p.unit}</option>`).join('')}
-    </select></div>
-    <div class="form-row">
-      <div class="form-group"><label>Quantité *</label><input id="v-qty" type="number" placeholder="1" min="1" value="1" oninput="updateSaleTotal()"></div>
-      <div class="form-group"><label>Prix unitaire (${state.settings.currency})</label><input id="v-price" type="number" oninput="updateSaleTotal()"></div>
-    </div>
-    <div class="form-row">
-      <div class="form-group"><label>Client / Acheteur</label><input id="v-client" placeholder="Nom du client"></div>
-      <div class="form-group"><label>Date</label><input id="v-date" type="date" value="2026-04-21"></div>
-    </div>
-    <div style="background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.2);border-radius:10px;padding:14px;text-align:center;margin-top:4px">
-      <div style="font-size:11px;color:var(--text3);margin-bottom:4px">TOTAL DE LA VENTE</div>
-      <div style="font-size:22px;font-weight:700;color:var(--green)" id="v-total">0 ${state.settings.currency}</div>
-    </div>
-  </div>
-  <div class="modal-footer">
-    <button class="btn btn-secondary" onclick="closeModal()">Annuler</button>
-    <button class="btn btn-success" onclick="addSale()">💰 Enregistrer la vente</button>
-  </div>`);
-  setTimeout(()=>updateSalePrice(),50);
-}
-
-function updateSalePrice(){
-  const sel=$('v-prod');if(!sel)return;
-  const opt=sel.options[sel.selectedIndex];
-  const price=opt?.dataset?.price||0;
-  const pi=$('v-price');if(pi)pi.value=price;
-  updateSaleTotal();
-}
-function updateSaleTotal(){
-  const qty=+$('v-qty')?.value||0;
-  const price=+$('v-price')?.value||0;
-  const t=$('v-total');if(t)t.textContent=fmt(qty*price)+' '+state.settings.currency;
-}
-function addSale(){
-  const pid=+$('v-prod')?.value;
-  const qty=+$('v-qty')?.value;
-  const price=+$('v-price')?.value;
-  if(!qty||qty<1){alert('Veuillez entrer une quantité valide.');return;}
-  if(!price){alert('Veuillez entrer un prix valide.');return;}
-  const p=state.products.find(x=>x.id===pid);if(!p)return;
-  if(p.stock<qty){alert(`Stock insuffisant!\nDisponible: ${p.stock} ${p.unit}\nDemandé: ${qty}`);return;}
-  p.stock-=qty;
-  state.sales.unshift({
-    id:state.nextSaleId++,
-    date:$('v-date')?.value||'2026-04-21',
-    product:p.name,qty,price,total:qty*price,
-    client:$('v-client')?.value.trim()||'Client anonyme'
-  });
-  closeModal();updateBadge();render();
-}
-function deleteSale(id){
-  if(!confirm('Supprimer cette vente ?'))return;
-  state.sales=state.sales.filter(s=>s.id!==id);render();
-}
-
-function filterByCategory(cat){
-  state.searchFilter=cat.toLowerCase();
-  $('main-content').innerHTML=renderProducts(state.searchFilter);
-}
-function globalSearch(q){
-  state.searchFilter=q.toLowerCase();
-  if(currentPage==='products'){$('main-content').innerHTML=renderProducts(state.searchFilter);}
-}
-
-function exportData(){
-  const d={exportDate:new Date().toISOString(),company:state.settings.companyName,...state};
-  const blob=new Blob([JSON.stringify(d,null,2)],{type:'application/json'});
-  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='stockpro-export.json';a.click();
-}
-function printReport(){window.print();}
-function resetData(){
-  if(!confirm('Confirmer la réinitialisation ?'))return;
-  state.products=[];state.sales=[];updateBadge();render();
-}
-
-function showModal(html){$('modal-inner').innerHTML=html;$('modal').style.display='flex';}
-function closeModal(){$('modal').style.display='none';}
-
-// Init
-updateBadge();render();
-</script>
+<script src="script.js"></script>
 </body>
 </html>
